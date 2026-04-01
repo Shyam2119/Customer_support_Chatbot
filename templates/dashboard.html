@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Analytics Dashboard</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        /* ── THEMES ─────────────────────────────────────── */
+        :root, [data-theme="light"] {
+            --bg:#f0f2f5; --card:#ffffff; --bg2:#f6f8fa;
+            --border:#e1e4e8; --text:#1f2328; --text2:#57606a; --text3:#8c959f;
+            --accent:#0969da; --accent2:#8250df; --accent3:#1a7f37;
+            --navbar:linear-gradient(135deg,#0969da,#1158c7);
+            --shadow:0 2px 12px rgba(0,0,0,0.1);
+            --val-color:#0969da; --badge-primary-bg:#dbeafe; --badge-primary-c:#1d4ed8;
+            --badge-success-bg:#dcfce7; --badge-success-c:#166534;
+            --badge-danger-bg:#fee2e2;  --badge-danger-c:#991b1b;
+            --badge-warn-bg:#fef3c7;    --badge-warn-c:#92400e;
+            --conf-fill:linear-gradient(90deg,#0969da,#7c3aed);
+        }
+        [data-theme="dark"] {
+            --bg:#0d1117; --card:rgba(22,27,34,0.95); --bg2:#161b22;
+            --border:#30363d; --text:#e6edf3; --text2:#8b949e; --text3:#6e7681;
+            --accent:#58a6ff; --accent2:#bc8cff; --accent3:#3fb950;
+            --navbar:linear-gradient(135deg,#1f6feb,#1a56c4);
+            --shadow:0 8px 32px rgba(0,0,0,0.5);
+            --val-color:#58a6ff; --badge-primary-bg:rgba(88,166,255,.15); --badge-primary-c:#58a6ff;
+            --badge-success-bg:rgba(63,185,80,.15); --badge-success-c:#3fb950;
+            --badge-danger-bg:rgba(248,81,73,.15);  --badge-danger-c:#f85149;
+            --badge-warn-bg:rgba(210,153,34,.15);   --badge-warn-c:#d29922;
+            --conf-fill:linear-gradient(90deg,#58a6ff,#bc8cff);
+        }
+        [data-theme="purple"] {
+            --bg:#0f0a1e; --card:rgba(26,17,48,.95); --bg2:#1a1130;
+            --border:#3d2b6b; --text:#f0e6ff; --text2:#a78bfa; --text3:#7c6fa8;
+            --accent:#c084fc; --accent2:#e879f9; --accent3:#4ade80;
+            --navbar:linear-gradient(135deg,#7c3aed,#6d28d9);
+            --shadow:0 8px 32px rgba(124,58,237,.3);
+            --val-color:#c084fc; --badge-primary-bg:rgba(192,132,252,.15); --badge-primary-c:#c084fc;
+            --badge-success-bg:rgba(74,222,128,.15); --badge-success-c:#4ade80;
+            --badge-danger-bg:rgba(248,81,73,.15);   --badge-danger-c:#f85149;
+            --badge-warn-bg:rgba(250,204,21,.15);    --badge-warn-c:#facc15;
+            --conf-fill:linear-gradient(90deg,#c084fc,#e879f9);
+        }
+        [data-theme="ocean"] {
+            --bg:#0a1628; --card:rgba(13,34,64,.96); --bg2:#0d2240;
+            --border:#1e4080; --text:#e0f2fe; --text2:#7dd3fc; --text3:#4d90b8;
+            --accent:#38bdf8; --accent2:#22d3ee; --accent3:#34d399;
+            --navbar:linear-gradient(135deg,#0284c7,#0369a1);
+            --shadow:0 8px 32px rgba(2,132,199,.25);
+            --val-color:#38bdf8; --badge-primary-bg:rgba(56,189,248,.15); --badge-primary-c:#38bdf8;
+            --badge-success-bg:rgba(52,211,153,.15); --badge-success-c:#34d399;
+            --badge-danger-bg:rgba(248,81,73,.15);   --badge-danger-c:#f85149;
+            --badge-warn-bg:rgba(251,191,36,.15);    --badge-warn-c:#fbbf24;
+            --conf-fill:linear-gradient(90deg,#38bdf8,#22d3ee);
+        }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+            background:var(--bg); color:var(--text);
+            transition:background .3s,color .3s;
+        }
+        ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+        /* Navbar */
+        .navbar {
+            background:var(--navbar); color:#fff;
+            padding:14px 28px;
+            display:flex; align-items:center; justify-content:space-between;
+            position:sticky; top:0; z-index:100;
+        }
+        .navbar h1{font-size:1.1rem;font-weight:700}
+        .navbar-links{display:flex;align-items:center;gap:8px}
+        .nav-link {
+            color:#fff; text-decoration:none;
+            background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,.2);
+            padding:6px 14px; border-radius:8px; font-size:0.8rem;
+            transition:background .2s; cursor:pointer; font-family:inherit;
+        }
+        .nav-link:hover { background:rgba(255,255,255,.28); }
+
+        /* Theme picker */
+        .theme-picker{position:relative}
+        .theme-menu {
+            display:none; position:absolute; top:calc(100%+6px); right:0;
+            background:var(--card); border:1px solid var(--border);
+            border-radius:10px; padding:6px; z-index:999;
+            min-width:140px; box-shadow:var(--shadow);
+        }
+        .theme-picker.open .theme-menu{display:block}
+        .theme-opt {
+            display:flex; align-items:center; gap:8px;
+            padding:7px 10px; border-radius:7px; cursor:pointer;
+            font-size:0.78rem; color:var(--text2); transition:background .15s;
+        }
+        .theme-opt:hover{background:rgba(128,128,128,.1);color:var(--accent)}
+        .theme-opt.active{color:var(--accent);font-weight:600}
+        .tdot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+        /* Container */
+        .container{max-width:1400px;margin:0 auto;padding:24px}
+
+        /* Stats */
+        .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px;margin-bottom:24px}
+        .stat-card {
+            background:var(--card); border-radius:14px; padding:18px;
+            box-shadow:var(--shadow); border:1px solid var(--border);
+            transition:transform .2s; position:relative; overflow:hidden;
+        }
+        .stat-card::before {
+            content:''; position:absolute; top:0; left:0; right:0; height:2px;
+            background:linear-gradient(90deg,var(--accent),var(--accent2));
+        }
+        .stat-card:hover{transform:translateY(-2px)}
+        .stat-icon{font-size:1.5rem;margin-bottom:8px}
+        .stat-value{font-size:1.7rem;font-weight:800;color:var(--val-color)}
+        .stat-label{font-size:0.75rem;color:var(--text3);margin-top:2px;font-weight:500}
+        .stat-sub{font-size:0.7rem;color:var(--accent3);margin-top:3px;font-weight:600}
+
+        /* Charts */
+        .charts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:18px;margin-bottom:24px}
+        .chart-card {
+            background:var(--card); border-radius:14px; padding:18px;
+            box-shadow:var(--shadow); border:1px solid var(--border);
+        }
+        .chart-card h3{font-size:0.9rem;font-weight:700;margin-bottom:14px;color:var(--text)}
+        .chart-wrap{position:relative;height:220px}
+
+        /* Tables */
+        .table-card {
+            background:var(--card); border-radius:14px; padding:18px;
+            margin-bottom:18px; box-shadow:var(--shadow); border:1px solid var(--border);
+        }
+        .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+        .section-header h3{font-size:0.9rem;font-weight:700;color:var(--text)}
+        table{width:100%;border-collapse:collapse;font-size:0.82rem}
+        th {
+            background:var(--bg2); padding:9px 12px; text-align:left;
+            font-size:0.72rem; font-weight:600; color:var(--text3);
+            border-bottom:1px solid var(--border);
+        }
+        td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text2)}
+        tr:last-child td{border-bottom:none}
+        tr:hover td{background:rgba(128,128,128,.04)}
+
+        .badge{padding:2px 9px;border-radius:12px;font-size:0.68rem;font-weight:700}
+        .badge-primary{background:var(--badge-primary-bg);color:var(--badge-primary-c)}
+        .badge-success{background:var(--badge-success-bg);color:var(--badge-success-c)}
+        .badge-danger {background:var(--badge-danger-bg); color:var(--badge-danger-c)}
+        .badge-warning{background:var(--badge-warn-bg);   color:var(--badge-warn-c)}
+
+        .conf-bar{display:flex;align-items:center;gap:7px;min-width:90px}
+        .conf-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+        .conf-fill{height:100%;background:var(--conf-fill);border-radius:3px}
+
+        .refresh-btn {
+            background:linear-gradient(135deg,var(--accent),var(--accent2));
+            color:#fff; border:none; padding:7px 14px;
+            border-radius:8px; cursor:pointer; font-size:0.78rem; font-weight:600;
+            transition:opacity .2s; font-family:inherit;
+        }
+        .refresh-btn:hover{opacity:.85}
+
+        .loading{text-align:center;color:var(--text3);padding:32px;font-size:0.88rem}
+
+        @media(max-width:768px){
+            .charts-grid{grid-template-columns:1fr}
+            .stats-grid{grid-template-columns:repeat(2,1fr)}
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <h1>🤖 Chatbot Analytics Dashboard</h1>
+    <div class="navbar-links">
+        <a href="/" class="nav-link">💬 Chat</a>
+        <button class="nav-link" onclick="refreshAll()">🔄 Refresh</button>
+        <a href="/api/analytics/export" class="nav-link" target="_blank">📤 Export</a>
+        <!-- Theme Picker -->
+        <div class="theme-picker" id="themePicker">
+            <button class="nav-link" onclick="togglePicker()">🎨 Theme</button>
+            <div class="theme-menu" id="themeMenu">
+                <div class="theme-opt" data-theme="light" onclick="setTheme('light')">
+                    <span class="tdot" style="background:#0969da"></span> Light
+                </div>
+                <div class="theme-opt" data-theme="dark" onclick="setTheme('dark')">
+                    <span class="tdot" style="background:#58a6ff"></span> Dark
+                </div>
+                <div class="theme-opt" data-theme="purple" onclick="setTheme('purple')">
+                    <span class="tdot" style="background:#c084fc"></span> Purple
+                </div>
+                <div class="theme-opt" data-theme="ocean" onclick="setTheme('ocean')">
+                    <span class="tdot" style="background:#38bdf8"></span> Ocean
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="loading">Loading stats...</div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>📈 Daily Messages (Last 7 Days)</h3>
+            <div class="chart-wrap"><canvas id="dailyChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <h3>🎯 Intent Distribution (Top 10)</h3>
+            <div class="chart-wrap"><canvas id="intentChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <h3>💬 Sentiment Breakdown</h3>
+            <div class="chart-wrap"><canvas id="sentimentChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+            <h3>⚡ Confidence Distribution</h3>
+            <div class="chart-wrap"><canvas id="confChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Intent Performance Table -->
+    <div class="table-card">
+        <div class="section-header">
+            <h3>🎯 Intent Performance Metrics</h3>
+            <button class="refresh-btn" onclick="loadIntentPerformance()">Refresh</button>
+        </div>
+        <div id="intentTableContainer"><div class="loading">Loading...</div></div>
+    </div>
+
+    <!-- Recent Conversations -->
+    <div class="table-card">
+        <div class="section-header">
+            <h3>💬 Recent Conversations</h3>
+            <button class="refresh-btn" onclick="loadConversations()">Refresh</button>
+        </div>
+        <div id="conversationsContainer"><div class="loading">Loading...</div></div>
+    </div>
+
+    <!-- Unknown Queries + Model Info -->
+    <div class="charts-grid">
+        <div class="table-card" style="margin-bottom:0">
+            <div class="section-header">
+                <h3>❓ Unrecognized Queries</h3>
+                <span style="font-size:0.78rem;color:var(--text-muted)">Potential new intents</span>
+            </div>
+            <div id="unknownQueriesContainer"><div class="loading">Loading...</div></div>
+        </div>
+        <div class="table-card" style="margin-bottom:0">
+            <h3>🧠 Model Information</h3>
+            <div id="modelInfoContainer"><div class="loading">Loading...</div></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = '';
+let dailyChart, intentChart, sentimentChart, confChart;
+
+async function fetchJSON(url) {
+    const r = await fetch(API + url);
+    return r.json();
+}
+
+async function loadDashboard() {
+    const data = await fetchJSON('/api/analytics/dashboard');
+    renderStats(data.overview);
+    renderDailyChart(data.daily_messages || []);
+    renderIntentChart(data.intent_distribution || []);
+    renderSentimentChart(data.sentiment_distribution || []);
+}
+
+function renderStats(o) {
+    const el = document.getElementById('statsGrid');
+    const statCards = [
+        { icon:'💬', val: o.total_sessions, label:'Total Sessions', sub: `+${o.today_sessions} today` },
+        { icon:'📨', val: o.total_messages, label:'Total Messages', sub: `+${o.today_messages} today` },
+        { icon:'🎯', val: o.avg_confidence + '%', label:'Avg Confidence', sub: o.low_confidence_rate + '% low conf' },
+        { icon:'⭐', val: o.avg_rating.toFixed(1), label:'Avg Rating', sub: o.total_feedback + ' reviews' },
+        { icon:'⚡', val: o.urgent_messages, label:'Urgent Messages', sub: '' },
+        { icon:'🔁', val: o.total_escalations, label:'Escalations', sub: '' },
+        { icon:'❓', val: o.fallback_rate + '%', label:'Fallback Rate', sub: 'Unknown intents' },
+        { icon:'⏱️', val: o.avg_response_time_ms + 'ms', label:'Avg Response Time', sub: '' },
+    ];
+    el.innerHTML = statCards.map(s => `
+        <div class="stat-card">
+            <div class="stat-icon">${s.icon}</div>
+            <div class="stat-value">${s.val}</div>
+            <div class="stat-label">${s.label}</div>
+            ${s.sub ? `<div class="stat-sub">${s.sub}</div>` : ''}
+        </div>`).join('');
+}
+
+function renderDailyChart(data) {
+    const ctx = document.getElementById('dailyChart').getContext('2d');
+    if (dailyChart) dailyChart.destroy();
+    dailyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map(d => d.date),
+            datasets: [{
+                label: 'Messages',
+                data: data.map(d => d.count),
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99,102,241,0.08)',
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#6366f1',
+                pointRadius: 4,
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision:0 } } } }
+    });
+}
+
+function renderIntentChart(data) {
+    const ctx = document.getElementById('intentChart').getContext('2d');
+    const colors = ['#6366f1','#8b5cf6','#06b6d4','#10b981','#f59e0b','#ef4444','#ec4899','#84cc16','#f97316','#14b8a6'];
+    if (intentChart) intentChart.destroy();
+    intentChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.map(d => d.intent.replace(/_/g,' ')),
+            datasets: [{
+                data: data.map(d => d.count),
+                backgroundColor: colors,
+                borderRadius: 6,
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision:0 } } } }
+    });
+}
+
+function renderSentimentChart(data) {
+    const ctx = document.getElementById('sentimentChart').getContext('2d');
+    const colorMap = { positive:'#10b981', neutral:'#6366f1', negative:'#ef4444' };
+    if (sentimentChart) sentimentChart.destroy();
+    sentimentChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: data.map(d => d.sentiment),
+            datasets: [{
+                data: data.map(d => d.count),
+                backgroundColor: data.map(d => colorMap[d.sentiment] || '#94a3b8'),
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { padding: 16, font: { size: 12 } } } } }
+    });
+}
+
+async function loadIntentPerformance() {
+    const data = await fetchJSON('/api/analytics/intents');
+    const rows = data.intent_performance || [];
+    document.getElementById('intentTableContainer').innerHTML = `
+        <table>
+            <thead><tr>
+                <th>Intent</th><th>Total Hits</th><th>Avg Confidence</th><th>Last Seen</th>
+            </tr></thead>
+            <tbody>${rows.map(r => `
+                <tr>
+                    <td><span class="badge badge-primary">${r.intent.replace(/_/g,' ')}</span></td>
+                    <td><strong>${r.total_hits}</strong></td>
+                    <td>
+                        <div class="conf-bar">
+                            <div class="conf-track"><div class="conf-fill" style="width:${r.avg_confidence}%"></div></div>
+                            <span style="font-size:0.8rem;font-weight:600">${r.avg_confidence}%</span>
+                        </div>
+                    </td>
+                    <td style="color:var(--text-muted);font-size:0.8rem">${r.last_seen || '—'}</td>
+                </tr>`).join('')}
+            </tbody>
+        </table>`;
+}
+
+async function loadConversations() {
+    const data = await fetchJSON('/api/analytics/conversations?limit=10');
+    const rows = data.conversations || [];
+    const statusBadge = s => {
+        const m = {resolved:'badge-success',escalated:'badge-danger',open:'badge-warning'};
+        return `<span class="badge ${m[s]||'badge-primary'}">${s}</span>`;
+    };
+    document.getElementById('conversationsContainer').innerHTML = `
+        <table>
+            <thead><tr>
+                <th>Session ID</th><th>Started</th><th>Messages</th>
+                <th>Status</th><th>Rating</th><th>Email</th>
+            </tr></thead>
+            <tbody>${rows.map(r => `
+                <tr>
+                    <td style="font-family:monospace;font-size:0.75rem">${r.id.substring(0,12)}...</td>
+                    <td style="font-size:0.8rem;color:var(--text-muted)">${new Date(r.created_at).toLocaleString()}</td>
+                    <td><strong>${r.total_messages}</strong></td>
+                    <td>${statusBadge(r.resolution_status)}</td>
+                    <td>${r.avg_rating ? '⭐'.repeat(Math.round(r.avg_rating)) : '—'}</td>
+                    <td style="font-size:0.8rem;color:var(--text-muted)">${r.user_email || '—'}</td>
+                </tr>`).join('')}
+            </tbody>
+        </table>`;
+}
+
+async function loadUnknownQueries() {
+    const data = await fetchJSON('/api/analytics/unknown-queries');
+    const rows = data.unknown_queries || [];
+    if (!rows.length) {
+        document.getElementById('unknownQueriesContainer').innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;padding:10px 0">No unrecognized queries yet.</p>';
+        return;
+    }
+    document.getElementById('unknownQueriesContainer').innerHTML = `
+        <table>
+            <thead><tr><th>Query</th><th>Frequency</th><th>Best Guess</th></tr></thead>
+            <tbody>${rows.slice(0,8).map(r => `
+                <tr>
+                    <td style="font-size:0.82rem">${r.query}</td>
+                    <td><span class="badge badge-warning">${r.frequency}x</span></td>
+                    <td style="font-size:0.78rem;color:var(--text-muted)">${r.best_guess_intent||'—'}</td>
+                </tr>`).join('')}
+            </tbody>
+        </table>`;
+}
+
+async function loadModelInfo() {
+    const data = await fetchJSON('/api/analytics/model-info');
+    const m = data.metadata || {};
+    document.getElementById('modelInfoContainer').innerHTML = `
+        <div>
+            <div class="info-row">
+                <span>Status</span>
+                <span class="info-val">${data.is_loaded ? '✅ Loaded' : '❌ Not Loaded'}</span>
+            </div>
+            <div class="info-row">
+                <span>Total Intents</span>
+                <span class="info-val">${data.num_intents}</span>
+            </div>
+            <div class="info-row">
+                <span>Vocabulary Size</span>
+                <span class="info-val">${data.num_words}</span>
+            </div>
+            <div class="info-row">
+                <span>Training Accuracy</span>
+                <span class="info-val">${m.final_accuracy ? (m.final_accuracy*100).toFixed(1)+'%' : 'N/A'}</span>
+            </div>
+            <div class="info-row">
+                <span>Epochs Trained</span>
+                <span class="info-val">${m.epochs_trained || 'N/A'}</span>
+            </div>
+            <div class="info-row">
+                <span>Trained At</span>
+                <span class="info-val" style="font-size:0.75rem">${m.trained_at ? new Date(m.trained_at).toLocaleDateString() : 'N/A'}</span>
+            </div>
+        </div>`;
+}
+
+// Confidence chart (static demo based on conf distribution)
+function renderConfChart() {
+    const ctx = document.getElementById('confChart').getContext('2d');
+    if (confChart) confChart.destroy();
+    confChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['0-20%','20-40%','40-60%','60-80%','80-100%'],
+            datasets: [{
+                label: 'Messages',
+                data: [5,8,18,42,67],
+                backgroundColor: ['#ef4444','#f97316','#f59e0b','#84cc16','#10b981'],
+                borderRadius: 6,
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision:0 } } } }
+    });
+}
+
+async function refreshAll() {
+    await loadDashboard();
+    await loadIntentPerformance();
+    await loadConversations();
+    await loadUnknownQueries();
+    await loadModelInfo();
+    renderConfChart();
+}
+
+// Auto-refresh every 30 seconds
+setInterval(refreshAll, 30000);
+
+// Initial load
+refreshAll();
+
+// ── THEME ──────────────────────────────────────────────
+function setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('chatTheme', t);
+    document.querySelectorAll('.theme-opt').forEach(el =>
+        el.classList.toggle('active', el.dataset.theme === t));
+    document.getElementById('themePicker').classList.remove('open');
+}
+function togglePicker() {
+    document.getElementById('themePicker').classList.toggle('open');
+}
+document.addEventListener('click', e => {
+    if (!document.getElementById('themePicker').contains(e.target))
+        document.getElementById('themePicker').classList.remove('open');
+});
+// Restore saved theme (default: light for dashboard)
+(function() {
+    const t = localStorage.getItem('chatTheme') || 'light';
+    document.documentElement.setAttribute('data-theme', t);
+    document.querySelectorAll('.theme-opt').forEach(el =>
+        el.classList.toggle('active', el.dataset.theme === t));
+})();
+</script>
+</body>
+</html>

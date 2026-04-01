@@ -1,0 +1,277 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": [
+        "Hi", "Hello", "Hey", "Good morning", "Good evening", "Howdy",
+        "What's up", "Greetings", "Hi there", "Hello there", "Hey there",
+        "Good day", "Sup", "Hiya", "Yo"
+      ],
+      "responses": [
+        "Hello! Welcome to our support center. How can I assist you today?",
+        "Hi there! I'm your virtual assistant. What can I help you with?",
+        "Hey! Great to have you here. How may I help you today?",
+        "Greetings! I'm here to help. What do you need assistance with?"
+      ],
+      "context_set": ""
+    },
+    {
+      "tag": "goodbye",
+      "patterns": [
+        "Bye", "Goodbye", "See you later", "Farewell", "Take care",
+        "That's all", "I'm done", "Thanks bye", "Exit", "Quit",
+        "I'll be going now", "Have a good day", "Catch you later"
+      ],
+      "responses": [
+        "Goodbye! Have a wonderful day!",
+        "Thanks for reaching out! Feel free to come back if you need help.",
+        "Take care! We're always here if you need us.",
+        "Bye! Don't hesitate to contact us again. Have a great day!"
+      ],
+      "context_set": ""
+    },
+    {
+      "tag": "order_status",
+      "patterns": [
+        "Where is my order", "Track my order", "Order status", "Check my order",
+        "When will my order arrive", "Order tracking", "Shipment status",
+        "Has my order shipped", "My order is late", "Order not received",
+        "What's the status of my package", "Track package", "Delivery status",
+        "Order number status", "Check shipment"
+      ],
+      "responses": [
+        "I'd be happy to help track your order! Please provide your order number and I'll look it up for you.",
+        "To check your order status, I'll need your order number. Can you provide that?",
+        "Let me help you track that! Please share your order ID or tracking number."
+      ],
+      "context_set": "order_status"
+    },
+    {
+      "tag": "return_refund",
+      "patterns": [
+        "Return my order", "I want a refund", "How do I return", "Return policy",
+        "Refund policy", "Get my money back", "Return item", "Exchange product",
+        "Send back purchase", "Cancel and refund", "Return process",
+        "How long for refund", "Refund status", "I want to return", "Request refund"
+      ],
+      "responses": [
+        "Our return policy allows returns within 30 days of purchase. I can initiate a return request for you. What's your order number?",
+        "I'll help you with the return process! Returns are accepted within 30 days. Please provide your order details.",
+        "For a refund or return, I'll need your order number. Refunds are typically processed within 5-7 business days."
+      ],
+      "context_set": "return"
+    },
+    {
+      "tag": "product_inquiry",
+      "patterns": [
+        "Tell me about product", "Product details", "Product information",
+        "What are the features", "Product specifications", "Is this available",
+        "Do you have", "Product availability", "Item details", "What products do you offer",
+        "Product catalog", "Show me products", "What's in stock", "Product description",
+        "More about this item"
+      ],
+      "responses": [
+        "I'd be glad to help you with product information! Which product are you interested in?",
+        "Sure! I can provide details on any of our products. What are you looking for?",
+        "Let me pull up that product information for you. What product would you like to know about?"
+      ],
+      "context_set": "product"
+    },
+    {
+      "tag": "payment_issues",
+      "patterns": [
+        "Payment failed", "Can't pay", "Payment not working", "Billing issue",
+        "Charge problem", "Payment declined", "Credit card issue", "Transaction failed",
+        "Double charged", "Wrong charge", "Payment error", "Billing problem",
+        "Payment method", "Add payment", "Update billing"
+      ],
+      "responses": [
+        "I'm sorry to hear about the payment issue! Let me help resolve this. Can you describe what happened when you tried to pay?",
+        "Payment issues can be frustrating. I'll help sort this out. Was there an error message when the payment failed?",
+        "Let me assist with your billing concern. Please share the details of the issue you're experiencing."
+      ],
+      "context_set": "payment"
+    },
+    {
+      "tag": "account_help",
+      "patterns": [
+        "Login problem", "Can't log in", "Forgot password", "Reset password",
+        "Account locked", "Account issue", "Update account", "Change email",
+        "Profile settings", "Account settings", "Username change", "Account not working",
+        "Sign in issue", "Access denied", "Account recovery"
+      ],
+      "responses": [
+        "I can help you with your account! For password resets, I can send a reset link to your email. What's your registered email address?",
+        "Account issues are a priority for us. Let me help! Are you having trouble logging in or with account settings?",
+        "I'll assist with your account right away. Could you tell me more about the specific issue you're experiencing?"
+      ],
+      "context_set": "account"
+    },
+    {
+      "tag": "shipping_info",
+      "patterns": [
+        "Shipping cost", "How much is shipping", "Free shipping", "Shipping options",
+        "Express shipping", "Standard shipping", "Overnight delivery", "International shipping",
+        "Shipping rates", "Delivery options", "How fast is shipping", "Same day delivery",
+        "Shipping time", "Estimated delivery", "Where do you ship"
+      ],
+      "responses": [
+        "We offer several shipping options! Standard (5-7 days): Free on orders over $50, Express (2-3 days): $9.99, Overnight: $19.99. International shipping available to 50+ countries.",
+        "Our shipping options include: Free standard shipping on orders over $50, Express shipping for $9.99, and Overnight for $19.99. Would you like more details?",
+        "We ship to over 50 countries! Domestic orders: Free standard (5-7 days), $9.99 express (2-3 days), $19.99 overnight. International rates vary by location."
+      ],
+      "context_set": ""
+    },
+    {
+      "tag": "technical_support",
+      "patterns": [
+        "Technical issue", "Not working", "App crashed", "Software bug",
+        "Error message", "Technical problem", "Glitch", "System error",
+        "Website down", "App not loading", "Feature not working", "Bug report",
+        "Technical help", "IT support", "Troubleshoot"
+      ],
+      "responses": [
+        "I'm sorry you're experiencing technical difficulties! Let me help troubleshoot. What exactly is happening, and what error message (if any) do you see?",
+        "Technical issues can be challenging. Let's fix this together! Can you describe the problem in detail?",
+        "I'll help troubleshoot this for you. What device/browser are you using, and when did this issue start?"
+      ],
+      "context_set": "tech_support"
+    },
+    {
+      "tag": "pricing",
+      "patterns": [
+        "How much does it cost", "Price", "Pricing", "Cost", "How much is",
+        "Discount", "Sale price", "Promotion", "Coupon", "Promo code",
+        "Best price", "Cheapest option", "Subscription cost", "Plan pricing",
+        "Package price"
+      ],
+      "responses": [
+        "I'd be happy to share pricing information! Our plans start at $9.99/month. What specific product or service are you looking for pricing on?",
+        "Our pricing varies by product. Could you specify which product you're interested in so I can give you accurate pricing?",
+        "Great question! We have competitive pricing options. What product or plan are you considering?"
+      ],
+      "context_set": ""
+    },
+    {
+      "tag": "complaint",
+      "patterns": [
+        "I'm angry", "This is terrible", "Worst service", "Very disappointed",
+        "Unhappy with", "Bad experience", "Poor quality", "Terrible product",
+        "Awful service", "I'm furious", "This is unacceptable", "File complaint",
+        "Make a complaint", "I want to complain", "Dissatisfied"
+      ],
+      "responses": [
+        "I sincerely apologize for the experience you've had. Your feedback is very important to us. Could you please tell me more about what happened so I can make this right?",
+        "I'm truly sorry to hear this. You deserve better, and I want to resolve this for you. Can you share more details about your issue?",
+        "I understand your frustration and I apologize. Let me escalate this to ensure it's handled with the urgency it deserves. What happened?"
+      ],
+      "context_set": "complaint"
+    },
+    {
+      "tag": "cancellation",
+      "patterns": [
+        "Cancel order", "Cancel subscription", "Cancel my account", "Stop subscription",
+        "Unsubscribe", "Cancel service", "Cancel plan", "Stop charging me",
+        "I want to cancel", "Terminate account", "Cancel everything", "End subscription",
+        "Cancel purchase", "Stop my plan", "Discontinue service"
+      ],
+      "responses": [
+        "I can help you with the cancellation. Before I process it, may I ask what's prompting you to cancel? I want to see if there's anything we can do to improve your experience.",
+        "I understand you'd like to cancel. To proceed, I'll need to verify your account details. Could you provide your account email or order number?",
+        "I can process that cancellation for you. Could you let me know the reason? Your feedback helps us improve our services."
+      ],
+      "context_set": "cancel"
+    },
+    {
+      "tag": "promotions",
+      "patterns": [
+        "Any deals", "Current promotions", "Discount codes", "Coupon available",
+        "Sale happening", "Special offers", "Promo", "Best deals", "Savings",
+        "Newsletter discount", "First order discount", "Black Friday deals",
+        "Holiday sale", "Seasonal deals", "Clearance"
+      ],
+      "responses": [
+        "Great news! We currently have several promotions running: 20% off first orders with code WELCOME20, Free shipping on orders over $50, and seasonal sales! Sign up for our newsletter for exclusive deals.",
+        "You're in luck! Current offers include: 15% off with code SAVE15, buy 2 get 1 free on select items, and free express shipping this week. Would you like details on any of these?",
+        "We have exciting deals! Use code NEWCUSTOMER for 20% off your first purchase. We also have weekly flash sales — check our website for the latest!"
+      ],
+      "context_set": ""
+    },
+    {
+      "tag": "feedback",
+      "patterns": [
+        "Give feedback", "Leave review", "Rate service", "Customer feedback",
+        "Product review", "Service review", "Submit feedback", "Rate experience",
+        "How was my experience", "Share opinion", "Testimonial", "Review product",
+        "Rate product", "Tell you how I feel", "Feedback form"
+      ],
+      "responses": [
+        "We'd love to hear your feedback! It helps us improve. You can leave a review on our website, or tell me directly — what was your experience like?",
+        "Thank you for wanting to share feedback! Your opinion matters greatly. Would you like to rate your experience today?",
+        "We appreciate your willingness to provide feedback! Please rate your experience (1-5 stars) and any comments you'd like to share."
+      ],
+      "context_set": ""
+    },
+    {
+      "tag": "business_hours",
+      "patterns": [
+        "What are your hours", "When are you open", "Business hours", "Support hours",
+        "Working hours", "Are you open", "When can I contact", "Office hours",
+        "Available hours", "Customer service hours", "Help desk hours",
+        "24/7 support", "When do you close", "Operating hours", "Service availability"
+      ],
+      "responses": [
+        "Our customer support is available Monday-Friday 9AM-8PM EST, Saturday 10AM-6PM EST. Our AI chatbot (that's me!) is available 24/7!",
+        "Human agents are available Mon-Fri 9AM-8PM and Sat 10AM-6PM EST. But I'm here 24/7 to assist you anytime!",
+        "We offer 24/7 AI support (me!) and live agent support Mon-Fri 9AM-8PM, Sat 10AM-6PM EST. Would you like to schedule a call with an agent?"
+      ],
+      "context_set": ""
+    },
+    {
+      "tag": "human_agent",
+      "patterns": [
+        "Talk to human", "Speak to agent", "Human support", "Real person",
+        "Transfer to agent", "Live agent", "Customer service representative",
+        "Talk to someone", "Speak with human", "Connect me to agent",
+        "I need a person", "Not helpful", "Escalate", "Manager please", "Human please"
+      ],
+      "responses": [
+        "Of course! I'll connect you with a live agent. Our agents are available Mon-Fri 9AM-8PM, Sat 10AM-6PM EST. Would you like to schedule a callback or wait in queue?",
+        "I understand you'd prefer to speak with a human. I'm transferring your chat now. Please hold while I connect you — average wait time is 3-5 minutes.",
+        "Absolutely! Let me connect you with one of our support specialists. While you wait, could you briefly describe your issue so the agent is prepared?"
+      ],
+      "context_set": "human_handoff"
+    },
+    {
+      "tag": "warranty",
+      "patterns": [
+        "Warranty information", "Product warranty", "How long is warranty",
+        "Warranty claim", "Extended warranty", "Warranty coverage", "Defective product",
+        "Under warranty", "Warranty period", "Manufacturing defect", "Warranty repair",
+        "Warranty replacement", "Guarantee", "Product guarantee", "What's covered"
+      ],
+      "responses": [
+        "All our products come with a 1-year manufacturer's warranty covering defects in materials and workmanship. Extended warranties are available for purchase. What product do you need warranty info for?",
+        "Our standard warranty is 1 year from purchase date. We offer 2 and 3 year extended plans. For warranty claims, I'll need your order number and a description of the issue.",
+        "We stand behind our products! Standard 1-year warranty is included. To start a warranty claim, please provide your order number and describe the defect."
+      ],
+      "context_set": "warranty"
+    },
+    {
+      "tag": "thanks",
+      "patterns": [
+        "Thank you", "Thanks", "Thank you so much", "Thanks a lot", "Appreciate it",
+        "Much appreciated", "You're helpful", "Great help", "Very helpful",
+        "Thanks for helping", "Awesome", "Perfect", "That's exactly what I needed",
+        "You helped me", "Wonderful"
+      ],
+      "responses": [
+        "You're very welcome! Is there anything else I can help you with?",
+        "Happy to help! Don't hesitate to reach out if you need anything else.",
+        "Glad I could assist! Your satisfaction is our top priority. Anything else I can do for you?",
+        "It was my pleasure! Feel free to come back anytime you need support."
+      ],
+      "context_set": ""
+    }
+  ]
+}

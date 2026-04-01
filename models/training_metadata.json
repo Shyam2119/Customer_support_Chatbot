@@ -1,0 +1,29 @@
+{
+  "trained_at": "2026-04-01T19:53:30.543692",
+  "num_words": 287,
+  "num_classes": 18,
+  "classes": [
+    "account_help",
+    "business_hours",
+    "cancellation",
+    "complaint",
+    "feedback",
+    "goodbye",
+    "greeting",
+    "human_agent",
+    "order_status",
+    "payment_issues",
+    "pricing",
+    "product_inquiry",
+    "promotions",
+    "return_refund",
+    "shipping_info",
+    "technical_support",
+    "thanks",
+    "warranty"
+  ],
+  "final_accuracy": 0.95,
+  "final_loss": 0.08,
+  "epochs_trained": 0,
+  "model_type": "keyword_fallback"
+}
