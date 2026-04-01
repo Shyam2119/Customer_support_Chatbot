@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: customer-support-chatbot
+    runtime: python
+    buildCommand: ./build.sh
+    startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT "app:create_app()"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_API_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "false"
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.11.0
