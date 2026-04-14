@@ -21,8 +21,13 @@ nltk.download('punkt',     quiet=True)
 nltk.download('wordnet',   quiet=True)
 nltk.download('omw-1.4',   quiet=True)
 nltk.download('punkt_tab', quiet=True)
-from nltk.stem import WordNetLemmatizer
-lemmatizer = WordNetLemmatizer()
+# Safe lemmatizer logic to match the main engine
+def safe_lemmatize(word):
+    # Fallback: basic suffix stripping for consistency
+    for suffix in ['ing', 'tion', 'ions', 'ed', 'es', 's']:
+        if word.endswith(suffix) and len(word) > len(suffix) + 2:
+            return word[:-len(suffix)]
+    return word.lower()
 
 #  Step 2: Build keyword model 
 print("Setup: Building keyword model...")
@@ -42,7 +47,7 @@ for intent in data['intents']:
             tokens = nltk.word_tokenize(pattern.lower())
         except Exception:
             tokens = pattern.lower().split()
-        tokens = [lemmatizer.lemmatize(t) for t in tokens if t not in ignore]
+        tokens = [safe_lemmatize(t) for t in tokens if t not in ignore]
         words.extend(tokens)
         kws.update(t for t in tokens if len(t) > 2)
     keyword_index[tag] = list(kws)

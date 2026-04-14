@@ -18,6 +18,14 @@ nltk.download('wordnet', quiet=True)
 nltk.download('omw-1.4', quiet=True)
 nltk.download('punkt_tab', quiet=True)
 
+# Safe lemmatizer logic to match the main engine
+def safe_lemmatize(word):
+    # Fallback: basic suffix stripping if wordnet unavailable or for consistency
+    for suffix in ['ing', 'tion', 'ions', 'ed', 'es', 's']:
+        if word.endswith(suffix) and len(word) > len(suffix) + 2:
+            return word[:-len(suffix)]
+    return word.lower()
+
 from nltk.stem import WordNetLemmatizer
 
 logger = logging.getLogger(__name__)
@@ -188,15 +196,17 @@ class ChatbotEngine:
 
         # Common support phrases that should trigger specific intents even with low keyword overlap
         priority_overrides = {
-            'order_status': ['where', 'order', 'track', 'status', 'package', 'shipping'],
-            'return_refund': ['refund', 'return', 'money', 'back'],
-            'product_inquiry': ['tell', 'product', 'detail', 'info', 'feature', 'skyfii'],
-            'human_agent': ['human', 'person', 'agent', 'speak', 'talk', 'someone'],
-            'thanks': ['thank', 'thanks', 'awesome', 'great', 'helpful']
+            'order_status': ['where', 'order', 'track', 'status', 'package', 'shipping', 'delivery'],
+            'return_refund': ['refund', 'return', 'money', 'back', 'policy', 'exchange'],
+            'product_inquiry': ['tell', 'product', 'detail', 'info', 'feature', 'skyfii', 'spec', 'buy', 'catalog'],
+            'promotions': ['promotion', 'deal', 'discount', 'coupon', 'promo', 'sale', 'off', 'save'],
+            'pricing': ['price', 'cost', 'how', 'much', 'pay', 'subscription', 'plan'],
+            'human_agent': ['human', 'person', 'agent', 'speak', 'talk', 'someone', 'support', 'live'],
+            'thanks': ['thank', 'thanks', 'awesome', 'great', 'helpful', 'perfect']
         }
 
         # Preprocess sentence
-        tokens = [lemmatizer.lemmatize(w.lower()) for w in nltk.word_tokenize(sentence) if w.isalpha()]
+        tokens = [safe_lemmatize(t) for t in nltk.word_tokenize(sentence) if t.isalpha()]
         tokens_set = set(tokens)
         
         scores = {}
