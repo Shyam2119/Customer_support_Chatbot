@@ -182,23 +182,53 @@ class ChatbotEngine:
         ]
 
     def _predict_keyword(self, sentence: str) -> list:
-        """Keyword-overlap intent prediction fallback"""
+        """Keyword-overlap intent prediction with weighted scoring and common support phrase detection"""
         if not self._keyword_index:
             return []
-        tokens = set(
-            lemmatizer.lemmatize(w.lower())
-            for w in nltk.word_tokenize(sentence)
-            if w.isalpha()
-        )
+
+        # Common support phrases that should trigger specific intents even with low keyword overlap
+        priority_overrides = {
+            'order_status': ['where', 'order', 'track', 'status', 'package', 'shipping'],
+            'return_refund': ['refund', 'return', 'money', 'back'],
+            'product_inquiry': ['tell', 'product', 'detail', 'info', 'feature', 'skyfii'],
+            'human_agent': ['human', 'person', 'agent', 'speak', 'talk', 'someone'],
+            'thanks': ['thank', 'thanks', 'awesome', 'great', 'helpful']
+        }
+
+        # Preprocess sentence
+        tokens = [lemmatizer.lemmatize(w.lower()) for w in nltk.word_tokenize(sentence) if w.isalpha()]
+        tokens_set = set(tokens)
+        
         scores = {}
         for tag, kws in self._keyword_index.items():
             kw_set = set(kws)
-            matches = len(tokens & kw_set)
-            if matches > 0:
-                scores[tag] = matches / (len(kw_set) + 1)
+            # Intersection of tokens and keywords
+            matches = tokens_set & kw_set
+            
+            if matches:
+                # Weighted score: matches / (total keywords in tag) + bonus for sentence length
+                # We use a non-linear boost for more matches
+                match_count = len(matches)
+                score = (match_count / (len(kw_set) + 1)) * 2.0
+                
+                # Priority Overrides: If core keywords for a tag are present, boost it significantly
+                if tag in priority_overrides:
+                    priority_matches = sum(1 for p in priority_overrides[tag] if p in tokens_set)
+                    if priority_matches > 0:
+                        score += (priority_matches * 0.4)
+                
+                scores[tag] = score
+
+        if not scores:
+            return []
+
+        # Normalize and convert to list of intents
         sorted_tags = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         return [
-            {'intent': tag, 'probability': min(score + 0.35, 0.95)}
+            {
+                'intent': tag, 
+                'probability': min(float(score) + 0.35, 0.98) # Floor of 0.35 if any match
+            }
             for tag, score in sorted_tags[:3]
         ]
 

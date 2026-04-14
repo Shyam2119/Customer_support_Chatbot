@@ -8,10 +8,9 @@
         "Good day", "Sup", "Hiya", "Yo"
       ],
       "responses": [
-        "Hello! Welcome to our support center. How can I assist you today?",
-        "Hi there! I'm your virtual assistant. What can I help you with?",
-        "Hey! Great to have you here. How may I help you today?",
-        "Greetings! I'm here to help. What do you need assistance with?"
+        "Hello! Welcome to Skyfii Electronics Support. I'm your AI assistant. How can I help you today?",
+        "Hi there! Thank you for choosing Skyfii. How may I assist you with your premium electronics?",
+        "Greetings from Skyfii! I'm here to help with your orders or product questions. What's on your mind?"
       ],
       "context_set": ""
     },
@@ -64,16 +63,13 @@
     {
       "tag": "product_inquiry",
       "patterns": [
-        "Tell me about product", "Product details", "Product information",
-        "What are the features", "Product specifications", "Is this available",
-        "Do you have", "Product availability", "Item details", "What products do you offer",
-        "Product catalog", "Show me products", "What's in stock", "Product description",
-        "More about this item"
+        "Tell me about product", "Product details", "Product information", "Skyfii Pro", "Skyfii Watch",
+        "Skyfii Air Max", "What are your best sellers", "Product specifications", "Is this available"
       ],
       "responses": [
-        "I'd be glad to help you with product information! Which product are you interested in?",
-        "Sure! I can provide details on any of our products. What are you looking for?",
-        "Let me pull up that product information for you. What product would you like to know about?"
+        "Our current premium lineup includes the **Skyfii Pro Headphones** (Noise Cancelling), the **Skyfii Watch Elite** (Always-On Display), and our new **Skyfii Air Max Earbuds**. Which one would you like to know more about?",
+        "Skyfii is proud to offer state-of-the-art tech. Our best sellers are the Skyfii Pro and the Watch Elite. I can provide specs for any of these!",
+        "I'd love to tell you about our products! We specialize in premium audio and wearables. Are you interested in our Skyfii Pro headphones or the Watch series?"
       ],
       "context_set": "product"
     },
