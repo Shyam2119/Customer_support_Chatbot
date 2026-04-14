@@ -14,5 +14,7 @@ services:
         value: "false"
       - key: FLASK_ENV
         value: production
+      - key: GEMINI_API_KEY
+        sync: false
       - key: PYTHON_VERSION
         value: "3.11"

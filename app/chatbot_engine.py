@@ -9,6 +9,7 @@ import random
 import os
 import re
 import logging
+import google.generativeai as genai
 from datetime import datetime
 from typing import Optional
 
@@ -76,6 +77,19 @@ class ChatbotEngine:
         self.is_loaded = False
         self._keyword_index = {}
         self._use_keyword_fallback = False
+        
+        # AI Fallback configuration
+        self.ai_enabled = False
+        self.api_key = os.environ.get('GEMINI_API_KEY')
+        if self.api_key:
+            try:
+                genai.configure(api_key=self.api_key)
+                self.ai_model = genai.GenerativeModel('gemini-1.5-flash')
+                self.ai_enabled = True
+                logger.info("Gemini AI Fallback initialized successfully.")
+            except Exception as e:
+                logger.error(f"Failed to initialize Gemini AI: {e}")
+        
         self._load_resources()
 
     def _load_resources(self):
@@ -200,7 +214,7 @@ class ChatbotEngine:
             'return_refund': ['refund', 'return', 'money', 'back', 'policy', 'exchange'],
             'product_inquiry': ['tell', 'product', 'detail', 'info', 'feature', 'skyfii', 'spec', 'buy', 'catalog'],
             'promotions': ['promotion', 'deal', 'discount', 'coupon', 'promo', 'sale', 'off', 'save'],
-            'pricing': ['price', 'cost', 'how', 'much', 'pay', 'subscription', 'plan'],
+            'pricing': ['price', 'cost', 'much', 'pay', 'subscription', 'plan'],
             'human_agent': ['human', 'person', 'agent', 'speak', 'talk', 'someone', 'support', 'live'],
             'thanks': ['thank', 'thanks', 'awesome', 'great', 'helpful', 'perfect']
         }
@@ -264,19 +278,52 @@ class ChatbotEngine:
             if entities.get('order_number') and tag == 'order_status':
                 response = f"Looking up order #{entities['order_number']}... " + response
 
-            return {
-                'response': response,
-                'intent': tag,
-                'confidence': confidence,
-                'entities': entities,
-                'context': self.intents[tag].get('context_set', '')
-            }
+            if confidence > 0.5:
+                return {
+                    'response': response,
+                    'intent': tag,
+                    'confidence': confidence,
+                    'entities': entities,
+                    'context': self.intents[tag].get('context_set', '')
+                }
+        
+        # Fallback to AI if enabled and local intent is weak/unknown
+        if self.ai_enabled:
+            ai_response = self._get_ai_fallback(sentence)
+            if ai_response:
+                return {
+                    'response': ai_response,
+                    'intent': 'ai_fallback',
+                    'confidence': 0.85, # Fixed confidence for AI responses
+                    'entities': self.extract_entities(sentence)
+                }
 
         return {
             'response': "I can help you with orders, returns, payments, technical support, and more. What do you need assistance with?",
             'intent': 'fallback',
             'confidence': 0.0
         }
+
+    def _get_ai_fallback(self, message: str) -> Optional[str]:
+        """Call Gemini API for general knowledge fallback"""
+        if not self.ai_enabled:
+            return None
+            
+        system_prompt = (
+            "You are the Skyfii Assistant, a premium customer support AI for Skyfii Electronics. "
+            "Skyfii sells high-end electronics like headphones, smartwatches, and audio gear. "
+            "Be professional, helpful, and concise. "
+            "If the question is about Skyfii products, provide high-quality support. "
+            "If the question is general, answer it while staying in your persona as a tech support assistant."
+        )
+        
+        try:
+            prompt = f"{system_prompt}\n\nUser Question: {message}\n\nHelpful Response:"
+            response = self.ai_model.generate_content(prompt)
+            return response.text.strip()
+        except Exception as e:
+            logger.error(f"AI Fallback error: {e}")
+            return None
 
     def extract_entities(self, text: str) -> dict:
         """Extract named entities from user input"""

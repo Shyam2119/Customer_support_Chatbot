@@ -611,7 +611,7 @@ async function loadHistory() {
             document.getElementById('messages').innerHTML = '';
             d.messages.forEach(m => {
                 if (m.message_type === 'user') addUser(m.content);
-                else addBot(m.content, m.intent, m.confidence);
+                else addBot(m.content, m.intent, m.confidence, m.sentiment, m.entities, m.response_time_ms);
             });
             msgCount = d.messages.filter(m => m.message_type === 'user').length;
             updateCount();
@@ -689,7 +689,7 @@ function addUser(text) {
 }
 
 function addBot(text, intent, confidence, sentiment, entities, rt) {
-    const sentHtml = buildSentiment(sentiment);
+    const sentHtml = buildSentiment(sentiment, intent);
     const entityHtml = buildEntities(entities);
     const rtHtml = rt ? `<span>• ${rt}ms</span>` : '';
     const area = document.getElementById('messages');
@@ -715,11 +715,12 @@ function addSys(text) {
         .insertAdjacentHTML('beforeend', `<div class="sys-msg">${text}</div>`);
 }
 
-function buildSentiment(s) {
+function buildSentiment(s, intent) {
     if (!s || !s.sentiment) return '';
     const e = {positive:'😊',negative:'😔',neutral:'😐'}[s.sentiment] || '';
     let h = `<span class="sent-tag ${s.sentiment}">${e} ${s.sentiment}</span>`;
     if (s.is_urgent) h += `<span class="sent-tag" style="background:rgba(240,165,0,.15);color:#f0a500">⚡ urgent</span>`;
+    if (intent === 'ai_fallback') h += `<span class="sent-tag" style="background:rgba(0,210,255,0.15);color:#00d2ff">✨ AI Powered</span>`;
     return h;
 }
 
