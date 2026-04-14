@@ -13,8 +13,10 @@ logging.basicConfig(
 )
 
 
-def create_app(config_name: str = 'development') -> Flask:
+def create_app(config_name: str = None) -> Flask:
     """Application factory pattern"""
+    if config_name is None:
+        config_name = os.environ.get('FLASK_ENV', 'development')
     app = Flask(
         __name__,
         template_folder=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates'),

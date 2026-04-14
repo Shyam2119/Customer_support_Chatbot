@@ -3,7 +3,8 @@ services:
     name: customer-support-chatbot
     runtime: python
     buildCommand: ./build.sh
-    startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT "app:create_app()"
+    startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT wsgi:app
+    healthCheckPath: /health
     envVars:
       - key: SECRET_KEY
         generateValue: true
@@ -14,4 +15,4 @@ services:
       - key: FLASK_ENV
         value: production
       - key: PYTHON_VERSION
-        value: 3.11.0
+        value: "3.11"

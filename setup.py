@@ -14,9 +14,9 @@ DB_PATH   = os.path.join(BASE_DIR, 'data', 'chatbot.db')
 
 os.makedirs(MODEL_DIR, exist_ok=True)
 
-# ─── Step 1: NLTK setup ──────────────────────────────────────────────────────
+#  Step 1: NLTK setup 
 import nltk
-print("🔧 Downloading NLTK data...")
+print("Setup: Downloading NLTK data...")
 nltk.download('punkt',     quiet=True)
 nltk.download('wordnet',   quiet=True)
 nltk.download('omw-1.4',   quiet=True)
@@ -24,8 +24,8 @@ nltk.download('punkt_tab', quiet=True)
 from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer()
 
-# ─── Step 2: Build keyword model ─────────────────────────────────────────────
-print("🧠 Building keyword model...")
+#  Step 2: Build keyword model 
+print("Setup: Building keyword model...")
 
 with open(DATA_PATH) as f:
     data = json.load(f)
@@ -67,10 +67,10 @@ metadata = {
 with open(os.path.join(MODEL_DIR, 'training_metadata.json'), 'w') as f:
     json.dump(metadata, f, indent=2)
 
-print(f"✅ Keyword model: {len(classes)} intents, {len(words)} words")
+print(f"Setup: Keyword model: {len(classes)} intents, {len(words)} words")
 
-# ─── Step 3: Seed database ───────────────────────────────────────────────────
-print("🌱 Seeding database...")
+#  Step 3: Seed database 
+print("Setup: Seeding database...")
 
 conn = sqlite3.connect(DB_PATH)
 conn.execute("PRAGMA journal_mode=WAL")
@@ -82,7 +82,7 @@ existing = conn.execute(
 ).fetchone()[0]
 
 if existing >= 1000:
-    print(f"✅ Already seeded ({existing} user messages). Skipping DB seed.")
+    print(f" Already seeded ({existing} user messages). Skipping DB seed.")
     conn.close()
 else:
     IPS = [f"192.168.{random.randint(0,255)}.{random.randint(1,254)}" for _ in range(50)]
@@ -105,7 +105,7 @@ else:
         [("user","What are your business hours?",None,None),("bot","Human agents: Mon-Fri 9AM-8PM EST, Sat 10AM-6PM EST. AI chatbot is 24/7!","business_hours",0.96)],
         [("user","I need to speak to a human",None,None),("bot","Of course! Average wait: 3-5 minutes. Shall I queue you now?","human_agent",0.97)],
         [("user","Tell me about your products",None,None),("bot","We offer electronics, accessories, software and services. What category interests you?","product_inquiry",0.91)],
-        [("user","Goodbye!",None,None),("bot","Goodbye! Have a wonderful day! Feel free to come back anytime. 👋","goodbye",0.98)],
+        [("user","Goodbye!",None,None),("bot","Goodbye! Have a wonderful day! Feel free to come back anytime. ","goodbye",0.98)],
         [("user","Thank you!",None,None),("bot","Happy to help! Don't hesitate to reach out if you need anything else.","thanks",0.99)],
         [("user","I was double charged!",None,None),("bot","I sincerely apologize for the double charge! Please share your order number and I'll escalate immediately.","payment_issues",0.97)],
         [("user","My product arrived broken",None,None),("bot","I'm so sorry! I'll process an immediate replacement at no cost. Please share your order number.","complaint",0.96)],
@@ -183,7 +183,7 @@ else:
         if sessions_created % 200 == 0:
             conn.execute("COMMIT")
             conn.execute("BEGIN")
-            print(f"   ⏳ {sessions_created} sessions, {messages_created} messages...")
+            print(f"    {sessions_created} sessions, {messages_created} messages...")
 
     conn.execute("COMMIT")
 
@@ -204,9 +204,9 @@ else:
 
     total_msgs = conn.execute("SELECT COUNT(*) FROM conversation_logs WHERE message_type='user'").fetchone()[0]
     total_sess = conn.execute("SELECT COUNT(*) FROM sessions").fetchone()[0]
-    print(f"\n✅ Seeding complete!")
-    print(f"   📊 Sessions:  {total_sess:,}")
-    print(f"   💬 Messages:  {total_msgs:,}")
+    print(f"\n Seeding complete!")
+    print(f"    Sessions:  {total_sess:,}")
+    print(f"    Messages:  {total_msgs:,}")
     conn.close()
 
-print("\n🎉 Setup complete! Run: python run.py")
+print("\nSetup complete! Run: python run.py")
