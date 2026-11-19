@@ -12,7 +12,7 @@ The intent model is evaluated on **123 customer messages it never saw in trainin
 
 | Model | In-scope accuracy | Macro F1 | Out-of-scope correctly rejected | Real questions wrongly rejected |
 |---|---|---|---|---|
-| Keyword matcher (previous version) | 48.1% | 51.1% | 86.7% | 29.6% |
+| Keyword matcher (previous version) | 49.1% | 51.6% | 80.0% | 27.8% |
 | **TF-IDF + logistic regression (current)** | **86.1%** | **90.2%** | **86.7%** | **10.2%** |
 
 How the numbers were produced:
