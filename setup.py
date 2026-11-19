@@ -77,6 +77,10 @@ print(f"Setup: Keyword model: {len(classes)} intents, {len(words)} words")
 #  Step 3: Seed database 
 print("Setup: Seeding database...")
 
+# Create the tables first: on a fresh checkout (CI, a new Render disk) the file doesn't exist yet
+from app.database import DatabaseManager  # noqa: E402
+DatabaseManager(DB_PATH)
+
 conn = sqlite3.connect(DB_PATH)
 conn.execute("PRAGMA journal_mode=WAL")
 conn.execute("PRAGMA foreign_keys=ON")
