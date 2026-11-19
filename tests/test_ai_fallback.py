@@ -1,39 +1,42 @@
-import sys
 import os
-from unittest.mock import MagicMock
-
-# Mock google.generativeai before importing chatbot_engine
-mock_genai = MagicMock()
-sys.modules['google.generativeai'] = mock_genai
+import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import app.chatbot_engine as chatbot_engine
+import app.chatbot_engine as chatbot_engine  # noqa: E402
 
-def test_ai_fallback():
-    # Set fake API key
-    os.environ['GEMINI_API_KEY'] = 'fake_key'
-    
+
+def test_ai_fallback_used_for_out_of_scope(monkeypatch):
+    monkeypatch.setenv('GEMINI_API_KEY', 'fake_key')
     engine = chatbot_engine.ChatbotEngine()
-    
-    # Mock the AI response
-    mock_model = MagicMock()
-    mock_model.generate_content.return_value.text = "This is an AI generated response about baking a cake."
-    engine.ai_model = mock_model
-    engine.ai_enabled = True
-    
-    # Test a query that should trigger fallback
-    query = "How do I bake a chocolate cake?"
-    result = engine.process_message(query)
-    
-    print(f"\nQuery: {query}")
-    print(f"Intent: {result['intent']}")
-    print(f"Confidence: {result['confidence']}")
-    print(f"Response: {result['response']}")
-    
+    calls = []
+
+    def fake_gemini(system_prompt, message):
+        calls.append(message)
+        return "This is an AI generated response about baking a cake."
+
+    monkeypatch.setattr(engine, '_call_gemini', fake_gemini)
+    result = engine.process_message("How do I bake a chocolate cake?")
     assert result['intent'] == 'ai_fallback'
     assert "baking a cake" in result['response']
-    print("\n✅ AI Fallback Test Passed!")
+    assert calls == ["How do I bake a chocolate cake?"]
 
-if __name__ == "__main__":
-    test_ai_fallback()
+
+def test_ai_not_called_for_known_intent(monkeypatch):
+    monkeypatch.setenv('GEMINI_API_KEY', 'fake_key')
+    engine = chatbot_engine.ChatbotEngine()
+    monkeypatch.setattr(engine, '_call_gemini', lambda *a: (_ for _ in ()).throw(AssertionError("should not call AI")))
+    result = engine.process_message("I want a refund for my broken headphones")
+    assert result['intent'] == 'return_refund'
+
+
+def test_ai_failure_falls_back_gracefully(monkeypatch):
+    monkeypatch.setenv('GEMINI_API_KEY', 'fake_key')
+    engine = chatbot_engine.ChatbotEngine()
+
+    def boom(*a):
+        raise RuntimeError("network down")
+
+    monkeypatch.setattr(engine, '_call_gemini', boom)
+    result = engine.process_message("How do I bake a chocolate cake?")
+    assert result['intent'] == 'unknown'

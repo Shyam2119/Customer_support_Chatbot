@@ -9,4 +9,7 @@ pip install -r requirements.txt
 echo "🧠 Building keyword NLP model + seeding database..."
 python setup.py
 
+echo "🎯 Training the intent classifier and measuring it on held-out messages..."
+python scripts/evaluate.py
+
 echo "✅ Build complete!"

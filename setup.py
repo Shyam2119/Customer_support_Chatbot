@@ -65,9 +65,9 @@ with open(os.path.join(MODEL_DIR, 'keyword_index.pkl'), 'wb') as f:
 metadata = {
     'trained_at': datetime.now().isoformat(),
     'num_words': len(words), 'num_classes': len(classes),
-    'classes': classes, 'final_accuracy': 0.95,
-    'final_loss': 0.08, 'epochs_trained': 0,
-    'model_type': 'keyword_fallback'
+    'classes': classes,
+    'model_type': 'keyword_fallback',
+    'note': 'Keyword matcher kept as a fallback and baseline; measured accuracy is in models/eval_report.json'
 }
 with open(os.path.join(MODEL_DIR, 'training_metadata.json'), 'w') as f:
     json.dump(metadata, f, indent=2)

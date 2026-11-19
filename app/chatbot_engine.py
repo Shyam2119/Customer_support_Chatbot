@@ -9,7 +9,7 @@ import random
 import os
 import re
 import logging
-import google.generativeai as genai
+import requests
 from datetime import datetime
 from typing import Optional
 
@@ -78,22 +78,20 @@ class ChatbotEngine:
         self._keyword_index = {}
         self._use_keyword_fallback = False
         
-        # AI Fallback configuration
-        self.ai_enabled = False
+        self.classifier = None
+        self.min_confidence = 0.5  # below this the local answer is not used
+
+        # AI fallback (Gemini REST API). Only used when the local model is unsure.
         self.api_key = os.environ.get('GEMINI_API_KEY')
-        if self.api_key:
-            try:
-                genai.configure(api_key=self.api_key)
-                self.ai_model = genai.GenerativeModel('gemini-1.5-flash')
-                self.ai_enabled = True
-                logger.info("Gemini AI Fallback initialized successfully.")
-            except Exception as e:
-                logger.error(f"Failed to initialize Gemini AI: {e}")
-        
+        self.ai_model_name = os.environ.get('GEMINI_MODEL', 'gemini-2.5-flash')
+        self.ai_enabled = bool(self.api_key)
+
         self._load_resources()
 
     def _load_resources(self):
-        """Load model, vocabulary, and intents data"""
+        """Load the intent classifier (default), else a TensorFlow model, else keywords."""
+        if self._load_classifier():
+            return
         model_path = os.path.join(MODEL_DIR, 'chatbot_model.h5')
 
         # Skip TensorFlow import entirely if no model file exists (prevents 10-min hang)
@@ -128,6 +126,27 @@ class ChatbotEngine:
             logger.error(f"Error loading TF model: {e}")
             logger.info("Falling back to keyword model...")
             self._load_keyword_fallback()
+
+    def _load_classifier(self) -> bool:
+        """TF-IDF + logistic regression (app/intent_classifier.py). Trains in about a
+        second from data/intents.json if no saved model exists."""
+        try:
+            from app.intent_classifier import MODEL_PATH, IntentClassifier
+            if os.path.exists(MODEL_PATH):
+                self.classifier = IntentClassifier.load(MODEL_PATH)
+            else:
+                self.classifier = IntentClassifier.train(DATA_PATH)
+            with open(DATA_PATH, 'r', encoding='utf-8') as f:
+                self.intents = {i['tag']: i for i in json.load(f)['intents']}
+            self.classes = self.classifier.classes
+            self.min_confidence = self.classifier.threshold
+            self.is_loaded = True
+            logger.info(f"Intent classifier loaded: {len(self.classes)} intents, threshold {self.classifier.threshold}")
+            return True
+        except Exception as e:
+            logger.error(f"Intent classifier unavailable: {e}")
+            self.classifier = None
+            return False
 
     def _load_keyword_fallback(self):
         """Load keyword-based model as fallback when TF model is unavailable"""
@@ -184,6 +203,9 @@ class ChatbotEngine:
         """Predict intent class with confidence scores"""
         if not self.is_loaded:
             return []
+
+        if self.classifier is not None:
+            return self.classifier.predict(sentence)
 
         # Keyword fallback when TF model not available
         if self._use_keyword_fallback or self.model is None:
@@ -259,6 +281,15 @@ class ChatbotEngine:
     def get_response(self, intents_list: list, sentence: str = "") -> dict:
         """Get response based on predicted intents"""
         if not intents_list:
+            # Nothing the local model is confident about: let the AI answer if configured.
+            ai_response = self._get_ai_fallback(sentence) if self.ai_enabled else None
+            if ai_response:
+                return {
+                    'response': ai_response,
+                    'intent': 'ai_fallback',
+                    'confidence': None,
+                    'entities': self.extract_entities(sentence)
+                }
             return {
                 'response': "I'm sorry, I didn't quite understand that. Could you rephrase your question? You can also type 'help' to see what I can assist with.",
                 'intent': 'unknown',
@@ -276,9 +307,11 @@ class ChatbotEngine:
             # Personalize response with entities if detected
             entities = self.extract_entities(sentence)
             if entities.get('order_number') and tag == 'order_status':
-                response = f"Looking up order #{entities['order_number']}... " + response
+                # the customer already gave the number, so don't ask for it again
+                response = (f"Thanks, I've got order #{entities['order_number']}. I'm checking its status now; "
+                            "you'll also receive tracking updates by email and SMS.")
 
-            if confidence > 0.5:
+            if confidence >= self.min_confidence:
                 return {
                     'response': response,
                     'intent': tag,
@@ -294,7 +327,7 @@ class ChatbotEngine:
                 return {
                     'response': ai_response,
                     'intent': 'ai_fallback',
-                    'confidence': 0.85, # Fixed confidence for AI responses
+                    'confidence': None,  # generated answer: no classifier confidence
                     'entities': self.extract_entities(sentence)
                 }
 
@@ -318,12 +351,27 @@ class ChatbotEngine:
         )
         
         try:
-            prompt = f"{system_prompt}\n\nUser Question: {message}\n\nHelpful Response:"
-            response = self.ai_model.generate_content(prompt)
-            return response.text.strip()
+            return self._call_gemini(system_prompt, message)
         except Exception as e:
             logger.error(f"AI Fallback error: {e}")
             return None
+
+    def _call_gemini(self, system_prompt: str, message: str) -> Optional[str]:
+        """Gemini REST call (the old google-generativeai SDK is no longer supported)."""
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.ai_model_name}:generateContent"
+        r = requests.post(
+            url,
+            headers={"x-goog-api-key": self.api_key},
+            json={
+                "systemInstruction": {"parts": [{"text": system_prompt}]},
+                "contents": [{"role": "user", "parts": [{"text": message}]}],
+                "generationConfig": {"temperature": 0.3, "maxOutputTokens": 400},
+            },
+            timeout=20,
+        )
+        r.raise_for_status()
+        parts = r.json()["candidates"][0]["content"]["parts"]
+        return "".join(p.get("text", "") for p in parts).strip() or None
 
     def extract_entities(self, text: str) -> dict:
         """Extract named entities from user input"""
@@ -456,6 +504,19 @@ class ChatbotEngine:
             with open(metadata_path, 'r') as f:
                 metadata = json.load(f)
 
+        report_path = os.path.join(MODEL_DIR, 'eval_report.json')
+        if self.classifier is not None:
+            metadata = {'model_type': 'tfidf_logistic_regression', 'threshold': self.classifier.threshold}
+            if os.path.exists(report_path):
+                with open(report_path, 'r') as f:
+                    rep = json.load(f)
+                lr = rep.get('logistic_regression', {})
+                metadata.update({
+                    'final_accuracy': lr.get('in_scope_accuracy', 0) / 100,
+                    'evaluated_on': f"{rep.get('test_messages')} held-out messages",
+                    'out_of_scope_rejected': lr.get('out_of_scope_rejected'),
+                    'train_patterns': rep.get('train_patterns'),
+                })
         return {
             'is_loaded': self.is_loaded,
             'num_intents': len(self.classes),

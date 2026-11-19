@@ -1,0 +1,397 @@
+{
+  "train_patterns": 369,
+  "dev_messages": 205,
+  "test_messages": 123,
+  "threshold": 0.38,
+  "logistic_regression": {
+    "in_scope_accuracy": 86.1,
+    "in_scope_macro_f1": 90.2,
+    "out_of_scope_rejected": 86.7,
+    "false_rejections": 10.2,
+    "errors": [
+      {
+        "text": "signing off now",
+        "expected": "goodbye",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "no update on my delivery since monday",
+        "expected": "order_status",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "has my smartwatch been dispatched",
+        "expected": "order_status",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "is the watch good for swimming",
+        "expected": "product_inquiry",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "do the headphones have a mic",
+        "expected": "product_inquiry",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "my debit card isn't accepted",
+        "expected": "payment_issues",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "reset link is not working",
+        "expected": "account_help",
+        "got": "technical_support"
+      },
+      {
+        "text": "the watch battery drains very fast",
+        "expected": "technical_support",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "what's the cost of skyfii air max",
+        "expected": "pricing",
+        "got": "product_inquiry"
+      },
+      {
+        "text": "how much for two pairs",
+        "expected": "pricing",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "worst customer service i have seen",
+        "expected": "complaint",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "any discount on headphones right now",
+        "expected": "promotions",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "is there any sale this week",
+        "expected": "promotions",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "any coupon for free shipping",
+        "expected": "promotions",
+        "got": "shipping_info"
+      },
+      {
+        "text": "what is the warranty on skyfii pro",
+        "expected": "warranty",
+        "got": "product_inquiry"
+      },
+      {
+        "text": "what is the score of the match",
+        "expected": "out_of_scope",
+        "got": "pricing"
+      },
+      {
+        "text": "how far is the moon",
+        "expected": "out_of_scope",
+        "got": "pricing"
+      }
+    ]
+  },
+  "keyword_baseline": {
+    "in_scope_accuracy": 48.1,
+    "in_scope_macro_f1": 51.1,
+    "out_of_scope_rejected": 86.7,
+    "false_rejections": 29.6,
+    "errors": [
+      {
+        "text": "hi team, quick question",
+        "expected": "greeting",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "hey there skyfii",
+        "expected": "greeting",
+        "got": "product_inquiry"
+      },
+      {
+        "text": "hi, is anyone online",
+        "expected": "greeting",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "ok that's everything, bye",
+        "expected": "goodbye",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "goodbye and thanks for the chat",
+        "expected": "goodbye",
+        "got": "thanks"
+      },
+      {
+        "text": "signing off now",
+        "expected": "goodbye",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "i'll come back later, bye",
+        "expected": "goodbye",
+        "got": "return_refund"
+      },
+      {
+        "text": "see you around",
+        "expected": "goodbye",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "my parcel is delayed",
+        "expected": "order_status",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "has my smartwatch been dispatched",
+        "expected": "order_status",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "is the watch good for swimming",
+        "expected": "product_inquiry",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "do the headphones have a mic",
+        "expected": "product_inquiry",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "which model is best for gym",
+        "expected": "product_inquiry",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "money got debited but order failed",
+        "expected": "payment_issues",
+        "got": "return_refund"
+      },
+      {
+        "text": "my debit card isn't accepted",
+        "expected": "payment_issues",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "i was charged two times for one order",
+        "expected": "payment_issues",
+        "got": "order_status"
+      },
+      {
+        "text": "payment gateway error at checkout",
+        "expected": "payment_issues",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "netbanking payment failed",
+        "expected": "payment_issues",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "why is there an extra charge on my bill",
+        "expected": "payment_issues",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "i'm locked out of my account",
+        "expected": "account_help",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "how to change my password",
+        "expected": "account_help",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "can't log in with google",
+        "expected": "account_help",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "update my address in my profile",
+        "expected": "account_help",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "my account shows someone else's details",
+        "expected": "account_help",
+        "got": "human_agent"
+      },
+      {
+        "text": "how much does delivery cost",
+        "expected": "shipping_info",
+        "got": "pricing"
+      },
+      {
+        "text": "do you deliver to my pincode",
+        "expected": "shipping_info",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "is express delivery available",
+        "expected": "shipping_info",
+        "got": "order_status"
+      },
+      {
+        "text": "do you offer cash on delivery shipping",
+        "expected": "shipping_info",
+        "got": "order_status"
+      },
+      {
+        "text": "shipping charges for international orders",
+        "expected": "shipping_info",
+        "got": "order_status"
+      },
+      {
+        "text": "bluetooth keeps disconnecting",
+        "expected": "technical_support",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "app shows an error when i sync",
+        "expected": "technical_support",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "headphones making crackling sound",
+        "expected": "technical_support",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "touch controls not responding",
+        "expected": "technical_support",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "my earbuds won't connect to my laptop",
+        "expected": "technical_support",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "do prices include gst",
+        "expected": "pricing",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "i'm very unhappy with this order",
+        "expected": "complaint",
+        "got": "order_status"
+      },
+      {
+        "text": "this is a terrible product",
+        "expected": "complaint",
+        "got": "product_inquiry"
+      },
+      {
+        "text": "worst customer service i have seen",
+        "expected": "complaint",
+        "got": "feedback"
+      },
+      {
+        "text": "i want to raise a complaint about the delay",
+        "expected": "complaint",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "your agent was very rude to me",
+        "expected": "complaint",
+        "got": "human_agent"
+      },
+      {
+        "text": "this is not acceptable at all",
+        "expected": "complaint",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "cancel my order please",
+        "expected": "cancellation",
+        "got": "order_status"
+      },
+      {
+        "text": "how can i cancel an order that is already placed",
+        "expected": "cancellation",
+        "got": "order_status"
+      },
+      {
+        "text": "cancel the order i placed yesterday",
+        "expected": "cancellation",
+        "got": "order_status"
+      },
+      {
+        "text": "i no longer want this order, cancel it",
+        "expected": "cancellation",
+        "got": "order_status"
+      },
+      {
+        "text": "offers for new customers?",
+        "expected": "promotions",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "festival offers on watches",
+        "expected": "promotions",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "i want to give some feedback",
+        "expected": "feedback",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "where do i post a product review",
+        "expected": "feedback",
+        "got": "order_status"
+      },
+      {
+        "text": "how can i rate my purchase",
+        "expected": "feedback",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "i'd like to leave a review for the support team",
+        "expected": "feedback",
+        "got": "human_agent"
+      },
+      {
+        "text": "what are your support timings",
+        "expected": "business_hours",
+        "got": "human_agent"
+      },
+      {
+        "text": "what time does support open in the morning",
+        "expected": "business_hours",
+        "got": "human_agent"
+      },
+      {
+        "text": "hours of operation please",
+        "expected": "business_hours",
+        "got": "out_of_scope"
+      },
+      {
+        "text": "what is the warranty on skyfii pro",
+        "expected": "warranty",
+        "got": "product_inquiry"
+      },
+      {
+        "text": "warranty details for earbuds",
+        "expected": "warranty",
+        "got": "product_inquiry"
+      },
+      {
+        "text": "tell me a fun fact",
+        "expected": "out_of_scope",
+        "got": "product_inquiry"
+      },
+      {
+        "text": "which phone should i buy from apple",
+        "expected": "out_of_scope",
+        "got": "product_inquiry"
+      }
+    ]
+  }
+}

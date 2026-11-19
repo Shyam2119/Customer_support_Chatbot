@@ -1,284 +1,86 @@
-# 🤖 Intelligent Customer Support Chatbot
+# Customer Support Chatbot
 
-A full-stack NLP-powered customer support chatbot built with **Python**, **TensorFlow**, **Flask**, **NLTK**, and **SQLite**.
+A support chatbot for a fictional electronics store ("Skyfii"). It recognises what the customer wants across 18 intents, pulls out order numbers, emails and amounts, notices frustration or urgency, and hands anything it doesn't recognise to Gemini. Every conversation is logged in SQLite and shown on an analytics dashboard.
 
----
+Built with Python, Flask, scikit-learn and SQLite. It runs on a free Render instance.
 
-## ✨ Features
+![Chat](docs/img/chat.png)
 
-### 🧠 NLP & Machine Learning
-- **Intent classification** across 18 categories using a deep neural network (TensorFlow/Keras)
-- **Bag-of-words** vectorization with NLTK tokenization + lemmatization
-- **Multi-layer DNN** with BatchNorm, Dropout, and Adam optimizer
-- **Confidence thresholding** — falls back gracefully for unknown inputs
-- **Entity extraction** — order numbers, emails, phone numbers, dollar amounts, dates
-- **Sentiment analysis** — positive/negative/neutral + urgency detection
-- **Smart response personalization** based on detected entities and sentiment
+## Measured accuracy
 
-### 🌐 REST API (Flask)
+The intent model is evaluated on **123 customer messages it never saw in training**. They were written to sound like real customers ("my earbuds won't connect to my laptop", "money got debited but order failed"), and 15 of them are out of scope ("give me a recipe for dosa"). Reproduce the numbers with `python scripts/evaluate.py`.
+
+| Model | In-scope accuracy | Macro F1 | Out-of-scope correctly rejected | Real questions wrongly rejected |
+|---|---|---|---|---|
+| Keyword matcher (previous version) | 48.1% | 51.1% | 86.7% | 29.6% |
+| **TF-IDF + logistic regression (current)** | **86.1%** | **90.2%** | **86.7%** | **10.2%** |
+
+How the numbers were produced:
+
+- **Dev set (205 messages).** Used to study errors, add training patterns and choose the "unknown" threshold (0.38).
+- **Test set (123 messages).** Written before any tuning, used only for the table above. No test or dev message appears in the training data; the script checks this every time it runs.
+- **Before adding training patterns.** The classifier scored 74.1% on the same test set. Adding 107 patterns, informed by dev-set errors only, raised it to 86.1%.
+- **The keyword matcher** is the earlier approach, rebuilt from the same training data so the comparison is fair.
+
+What it still gets wrong: very short or vague messages ("is it expensive?"), and messages that mix two intents ("can I cancel after shipping"). The next step is to log the low-confidence messages from real users and label them.
+
+The dashboard's sample numbers come from `setup.py`, which seeds about 5,200 *synthetic* conversations so the charts have something to show. They are not real usage.
+
+## How it works
+
+```
+message ─▶ sentiment + urgency (rules) ─▶ intent classifier ─┬─ confident ─▶ answer from intents.json
+                                         (TF-IDF word 1-2 grams + char 2-5 grams,     + entities (order no., email, ₹/$)
+                                          logistic regression)  └─ unsure ───▶ Gemini fallback (if GEMINI_API_KEY)
+                                                                                └─ else "could you rephrase?"
+every turn ─▶ SQLite log ─▶ analytics API ─▶ dashboard
+```
+
+- **Why character n-grams:** they tolerate typos and word forms ("refnd", "charged" / "charge") without needing NLTK data downloads at runtime.
+- **Why logistic regression, not a neural network:** with 369 short training patterns, a linear model on TF-IDF features is accurate and trains in about a second. It is also small enough for a free 512 MB instance; the old TensorFlow model was too heavy to deploy, so production had silently been running the keyword matcher.
+- **Unknown detection:** if the top probability is below the threshold chosen on the dev set, the bot does not guess.
+- **Gemini fallback:** a REST call to `gemini-2.5-flash` (the old `google-generativeai` SDK is no longer supported). It is used only when the classifier is unsure, and errors fall back to a polite "please rephrase".
+
+## Run it
+
+```bash
+python -m venv .venv && .venv\Scripts\activate      # macOS/Linux: source .venv/bin/activate
+pip install -r requirements.txt
+python setup.py                 # keyword model + demo database
+python scripts/evaluate.py      # train the classifier and print the accuracy table
+python run.py                   # http://localhost:5000  and  /dashboard
+pytest -q                       # 58 tests, including an accuracy gate
+```
+
+Optional: set `GEMINI_API_KEY` in `.env` to answer out-of-scope questions. The TensorFlow trainer in `scripts/train_model.py` is kept for experiments and is not used in production.
+
+## API
+
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/chat/session` | Create new chat session |
-| POST | `/api/chat/message` | Send message, get AI response |
-| GET | `/api/chat/history/<id>` | Full conversation history |
-| POST | `/api/chat/feedback` | Submit 1-5 star feedback |
-| GET | `/api/analytics/dashboard` | Full analytics dashboard data |
-| GET | `/api/analytics/intents` | Per-intent performance metrics |
-| GET | `/api/analytics/conversations` | Recent conversations list |
-| GET | `/api/analytics/unknown-queries` | Unrecognized query analysis |
-| GET | `/api/analytics/model-info` | Model metadata |
-| GET | `/api/analytics/export` | Export conversation logs |
-| POST | `/api/admin/reload-model` | Hot-reload model (API key required) |
-| POST | `/api/admin/test-prediction` | Test prediction without logging |
+|---|---|---|
+| POST | `/api/chat/session` | Create a chat session |
+| POST | `/api/chat/message` | Send a message, get the reply, intent, confidence, entities and sentiment |
+| GET | `/api/chat/history/<id>` | Conversation history |
+| POST | `/api/chat/feedback` | 1–5 star rating |
+| GET | `/api/analytics/dashboard` | Dashboard data |
+| GET | `/api/analytics/intents` | Per-intent counts and confidence |
+| GET | `/api/analytics/unknown-queries` | Messages the bot did not understand (to label next) |
+| GET | `/api/analytics/model-info` | Model type, threshold and measured accuracy |
+| POST | `/api/admin/test-prediction` | Test a prediction without logging (needs `X-API-Key`) |
 | GET | `/health` | Health check |
 
-### 💾 Database (SQLite)
-- **5,000+ conversation capacity** with full conversation logs
-- **7 normalized tables**: sessions, conversation_logs, feedback, intent_analytics, model_performance, escalations, unknown_queries
-- **WAL mode** for concurrent access
-- **Automatic indexing** for fast queries
-- **Daily analytics aggregation** per intent
-- **Export functionality** with date range filtering
-
-### 📊 Analytics Dashboard
-- Real-time metrics: sessions, messages, avg confidence, ratings
-- Intent distribution bar chart
-- Daily message volume line chart
-- Sentiment breakdown donut chart
-- Confidence distribution histogram
-- Per-intent performance table with confidence bars
-- Recent conversations table with escalation status
-- Unknown query analysis for model improvement
-- Model training metadata display
-- Auto-refresh every 30 seconds
-
-### 💬 Chat UI
-- **4 switchable themes** — Dark 🌑, Light ☀️, Purple 💜, Ocean 🌊 (persisted across pages)
-- Beautiful gradient-styled interface with Inter font
-- Animated typing indicator with bouncing dots
-- Real-time intent + confidence display bar
-- Sentiment chips on bot messages (positive / negative / neutral / urgent)
-- Entity extraction pills (order numbers, emails, phone, dollar amounts)
-- 8 quick-reply shortcut buttons for common queries
-- 👍/👎 micro-feedback on every bot message
-- 5-star rating modal with optional free-text comment
-- Session persistence via `sessionStorage` + history reload
-- Mobile-responsive layout
-
----
-
-## 🏗️ Project Structure
+## Project layout
 
 ```
-customer_support_chatbot/
-├── app/
-│   ├── __init__.py          # Flask app factory
-│   ├── chatbot_engine.py    # NLP inference engine
-│   ├── database.py          # SQLite database manager
-│   └── routes.py            # All API routes
-├── data/
-│   ├── intents.json         # 18 intent categories (270+ patterns)
-│   └── chatbot.db           # SQLite database (auto-created)
-├── models/
-│   ├── chatbot_model.h5     # Trained TensorFlow model
-│   ├── words.pkl            # Vocabulary pickle
-│   ├── classes.pkl          # Intent classes pickle
-│   ├── training_metadata.json
-│   └── training_history.json
-├── scripts/
-│   ├── train_model.py       # Full TensorFlow training pipeline
-│   ├── quick_train.py       # Setup with fallback keyword model
-│   └── seed_data.py         # Seed demo data
-├── templates/
-│   ├── index.html           # Chat UI
-│   └── dashboard.html       # Analytics dashboard
-├── tests/
-│   └── test_chatbot.py      # Comprehensive test suite (40+ tests)
-├── logs/                    # Application logs
-├── .env.example             # Environment variables template
-├── requirements.txt         # Python dependencies
-└── run.py                   # Application entry point
+app/intent_classifier.py   TF-IDF + logistic regression, save/load, threshold
+app/chatbot_engine.py      pipeline: sentiment, intent, entities, responses, Gemini fallback
+app/routes.py, database.py Flask API and SQLite (7 tables, WAL mode)
+data/intents.json          18 intents: training patterns and responses
+eval/                      dev and test message sets
+scripts/evaluate.py        trains, picks the threshold on dev, reports on test
+tests/                     unit, API and accuracy-gate tests
 ```
 
----
+## Deploy
 
-## 🚀 Quick Start
-
-### 1. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 2. One-Shot Setup (model + database)
-```bash
-# Builds keyword model + seeds 5,200+ conversation logs — no TensorFlow required
-python setup.py
-```
-
-### 3. Start the Server
-```bash
-python run.py
-```
-
-### 4. Open the App
-| URL | Description |
-|-----|-------------|
-| http://localhost:5000 | 💬 Chat UI (4 themes) |
-| http://localhost:5000/dashboard | 📊 Analytics Dashboard |
-| http://localhost:5000/health | ✅ Health check JSON |
-
-### Optional — Train the Full TensorFlow Neural Network
-```bash
-# Higher accuracy (~97-99%) but requires TF + GPU (~5-10 min)
-python scripts/train_model.py
-```
-Once `models/chatbot_model.h5` is created, the engine auto-detects it on next start
-and switches to TF inference automatically.
-
-> **Note:** The keyword fallback model is used by default until the `.h5` file exists.
-
----
-
-## 🎯 Intent Categories (18)
-
-| Intent | Description |
-|--------|-------------|
-| `greeting` | Hello, hi, hey |
-| `goodbye` | Bye, farewell |
-| `order_status` | Track order, shipment status |
-| `return_refund` | Returns, refunds, exchanges |
-| `product_inquiry` | Product details, availability |
-| `payment_issues` | Failed payments, billing |
-| `account_help` | Login, password, profile |
-| `shipping_info` | Rates, options, delivery time |
-| `technical_support` | App issues, bugs, errors |
-| `pricing` | Cost, discounts, plans |
-| `complaint` | Negative feedback, escalation |
-| `cancellation` | Cancel orders/subscriptions |
-| `promotions` | Deals, coupons, sales |
-| `feedback` | Reviews, ratings |
-| `business_hours` | Support availability |
-| `human_agent` | Escalate to human |
-| `warranty` | Product warranties, claims |
-| `thanks` | Gratitude responses |
-
----
-
-## 🧪 Running Tests
-```bash
-python -m pytest tests/ -v
-# or
-python tests/test_chatbot.py
-```
-
-Tests cover:
-- Entity extraction (orders, emails, phones, amounts)
-- Sentiment analysis (positive/negative/neutral/urgent)
-- Database CRUD operations
-- All Flask API endpoints
-- Intent data validation
-- Model loading
-
----
-
-## 📡 API Examples
-
-**Bash / curl**
-```bash
-# Create session
-curl -X POST http://localhost:5000/api/chat/session
-
-# Send message
-curl -X POST http://localhost:5000/api/chat/message \
-  -H "Content-Type: application/json" \
-  -d '{"session_id": "YOUR_SID", "message": "Where is my order?"}'
-
-# Analytics
-curl http://localhost:5000/api/analytics/dashboard
-
-# Admin reload
-curl -X POST http://localhost:5000/api/admin/reload-model \
-  -H "X-API-Key: demo-admin-key-12345"
-```
-
-**PowerShell**
-```powershell
-# Create session & send message
-$s = Invoke-RestMethod -Uri http://localhost:5000/api/chat/session -Method POST
-$sid = $s.session_id
-
-Invoke-RestMethod -Uri http://localhost:5000/api/chat/message -Method POST `
-  -ContentType "application/json" `
-  -Body "{`"session_id`":`"$sid`",`"message`":`"Where is my order?`"}"
-```
-
----
-
-## 🔧 Model Architecture
-
-```
-Input (vocab_size)
-    → Dense(256, relu) + BatchNorm + Dropout(0.4)
-    → Dense(128, relu) + BatchNorm + Dropout(0.3)
-    → Dense(64, relu)  + BatchNorm + Dropout(0.2)
-    → Dense(num_classes, softmax)
-```
-
-- **Optimizer**: Adam (lr=0.001) with ReduceLROnPlateau
-- **Loss**: Categorical Cross-Entropy
-- **Callbacks**: EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
-- **Training Accuracy**: ~97-99% on training data
-
----
-
-## ⚙️ Configuration
-
-Copy `.env.example` to `.env` and update:
-```
-SECRET_KEY=your-secret-key
-ADMIN_API_KEY=your-admin-key
-DEBUG=false  # for production
-PORT=5000
-```
-
----
-
-## 🚢 Production Deployment
-
-```bash
-# Using Gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 "app:create_app()"
-```
-
----
-
-## 📈 Performance
-
-| Metric | Value |
-|--------|-------|
-| Avg response time | 80–400 ms |
-| Keyword model inference | < 10 ms |
-| TF model inference | < 50 ms |
-| DB seeded rows | 5,200+ |
-| Concurrent sessions | ✅ WAL mode |
-
----
-
-## 🎨 Themes
-
-Both the chat page and the analytics dashboard share **4 built-in themes** via a `🎨 Theme` dropdown.  
-The selected theme persists across page reloads and carries between both pages via `localStorage`.
-
-| Theme | Style |
-|-------|-------|
-| 🌑 Dark | GitHub-dark blue/purple |
-| ☀️ Light | Clean blue on white |
-| 💜 Purple | Deep violet glassmorphism |
-| 🌊 Ocean | Deep sea cyan/teal |
-
----
-
-## 🐛 Known Issues Fixed
-
-- **Connection error on first message** — Fixed: `import tensorflow` was blocking Flask threads  
-  for 10–15 min when no `.h5` model existed. Now guarded behind a file-existence check.
+`render.yaml` and `build.sh` deploy to Render. The build installs the requirements, builds the demo database, then trains and evaluates the classifier. Set `GEMINI_API_KEY` in the Render dashboard to turn on the fallback.

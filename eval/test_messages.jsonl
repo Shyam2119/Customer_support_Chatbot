@@ -1,0 +1,123 @@
+{"text": "hello good morning", "intent": "greeting"}
+{"text": "hi team, quick question", "intent": "greeting"}
+{"text": "hey there skyfii", "intent": "greeting"}
+{"text": "hi, is anyone online", "intent": "greeting"}
+{"text": "hello, good to meet you", "intent": "greeting"}
+{"text": "hello, hope you are well", "intent": "greeting"}
+{"text": "ok that's everything, bye", "intent": "goodbye"}
+{"text": "goodbye and thanks for the chat", "intent": "goodbye"}
+{"text": "signing off now", "intent": "goodbye"}
+{"text": "bye for now", "intent": "goodbye"}
+{"text": "i'll come back later, bye", "intent": "goodbye"}
+{"text": "see you around", "intent": "goodbye"}
+{"text": "when will my order reach me", "intent": "order_status"}
+{"text": "my parcel is delayed", "intent": "order_status"}
+{"text": "order shows shipped but i haven't received it", "intent": "order_status"}
+{"text": "can you check where order 66554433 is", "intent": "order_status"}
+{"text": "no update on my delivery since monday", "intent": "order_status"}
+{"text": "has my smartwatch been dispatched", "intent": "order_status"}
+{"text": "i want to send this product back", "intent": "return_refund"}
+{"text": "how do i get a refund for broken headphones", "intent": "return_refund"}
+{"text": "my refund hasn't come yet", "intent": "return_refund"}
+{"text": "can i replace the item with another size", "intent": "return_refund"}
+{"text": "the product was damaged, i need a return", "intent": "return_refund"}
+{"text": "what's your return window", "intent": "return_refund"}
+{"text": "does skyfii pro support wireless charging", "intent": "product_inquiry"}
+{"text": "is the watch good for swimming", "intent": "product_inquiry"}
+{"text": "tell me the features of skyfii air max", "intent": "product_inquiry"}
+{"text": "do the headphones have a mic", "intent": "product_inquiry"}
+{"text": "which model is best for gym", "intent": "product_inquiry"}
+{"text": "is the skyfii watch compatible with android", "intent": "product_inquiry"}
+{"text": "money got debited but order failed", "intent": "payment_issues"}
+{"text": "my debit card isn't accepted", "intent": "payment_issues"}
+{"text": "i was charged two times for one order", "intent": "payment_issues"}
+{"text": "payment gateway error at checkout", "intent": "payment_issues"}
+{"text": "netbanking payment failed", "intent": "payment_issues"}
+{"text": "why is there an extra charge on my bill", "intent": "payment_issues"}
+{"text": "i'm locked out of my account", "intent": "account_help"}
+{"text": "reset link is not working", "intent": "account_help"}
+{"text": "how to change my password", "intent": "account_help"}
+{"text": "can't log in with google", "intent": "account_help"}
+{"text": "update my address in my profile", "intent": "account_help"}
+{"text": "my account shows someone else's details", "intent": "account_help"}
+{"text": "how much does delivery cost", "intent": "shipping_info"}
+{"text": "do you deliver to my pincode", "intent": "shipping_info"}
+{"text": "how many days for shipping to chennai", "intent": "shipping_info"}
+{"text": "is express delivery available", "intent": "shipping_info"}
+{"text": "do you offer cash on delivery shipping", "intent": "shipping_info"}
+{"text": "shipping charges for international orders", "intent": "shipping_info"}
+{"text": "bluetooth keeps disconnecting", "intent": "technical_support"}
+{"text": "the watch battery drains very fast", "intent": "technical_support"}
+{"text": "app shows an error when i sync", "intent": "technical_support"}
+{"text": "headphones making crackling sound", "intent": "technical_support"}
+{"text": "touch controls not responding", "intent": "technical_support"}
+{"text": "my earbuds won't connect to my laptop", "intent": "technical_support"}
+{"text": "what's the cost of skyfii air max", "intent": "pricing"}
+{"text": "how much is the smartwatch", "intent": "pricing"}
+{"text": "price of your cheapest headphones", "intent": "pricing"}
+{"text": "do prices include gst", "intent": "pricing"}
+{"text": "what does the pro version cost", "intent": "pricing"}
+{"text": "how much for two pairs", "intent": "pricing"}
+{"text": "i'm very unhappy with this order", "intent": "complaint"}
+{"text": "this is a terrible product", "intent": "complaint"}
+{"text": "worst customer service i have seen", "intent": "complaint"}
+{"text": "i want to raise a complaint about the delay", "intent": "complaint"}
+{"text": "your agent was very rude to me", "intent": "complaint"}
+{"text": "this is not acceptable at all", "intent": "complaint"}
+{"text": "cancel my order please", "intent": "cancellation"}
+{"text": "i want to cancel my subscription", "intent": "cancellation"}
+{"text": "how can i cancel an order that is already placed", "intent": "cancellation"}
+{"text": "please stop my renewal", "intent": "cancellation"}
+{"text": "cancel the order i placed yesterday", "intent": "cancellation"}
+{"text": "i no longer want this order, cancel it", "intent": "cancellation"}
+{"text": "any discount on headphones right now", "intent": "promotions"}
+{"text": "do you have promo codes", "intent": "promotions"}
+{"text": "is there any sale this week", "intent": "promotions"}
+{"text": "offers for new customers?", "intent": "promotions"}
+{"text": "festival offers on watches", "intent": "promotions"}
+{"text": "any coupon for free shipping", "intent": "promotions"}
+{"text": "i want to give some feedback", "intent": "feedback"}
+{"text": "where do i post a product review", "intent": "feedback"}
+{"text": "i have a suggestion to improve your service", "intent": "feedback"}
+{"text": "how can i rate my purchase", "intent": "feedback"}
+{"text": "let me share feedback about your app", "intent": "feedback"}
+{"text": "i'd like to leave a review for the support team", "intent": "feedback"}
+{"text": "what are your support timings", "intent": "business_hours"}
+{"text": "are you available on sunday", "intent": "business_hours"}
+{"text": "what time does support open in the morning", "intent": "business_hours"}
+{"text": "is customer service open at night", "intent": "business_hours"}
+{"text": "hours of operation please", "intent": "business_hours"}
+{"text": "when are you closed", "intent": "business_hours"}
+{"text": "i want to speak with a human agent", "intent": "human_agent"}
+{"text": "connect me with a real person", "intent": "human_agent"}
+{"text": "can i talk to someone from your team", "intent": "human_agent"}
+{"text": "transfer this chat to a human", "intent": "human_agent"}
+{"text": "i need human help please", "intent": "human_agent"}
+{"text": "give me a customer care number to call", "intent": "human_agent"}
+{"text": "what is the warranty on skyfii pro", "intent": "warranty"}
+{"text": "how to make a warranty claim", "intent": "warranty"}
+{"text": "is accidental damage covered by warranty", "intent": "warranty"}
+{"text": "my watch stopped working, is it under warranty", "intent": "warranty"}
+{"text": "can i buy extended warranty", "intent": "warranty"}
+{"text": "warranty details for earbuds", "intent": "warranty"}
+{"text": "thank you very much", "intent": "thanks"}
+{"text": "thanks for sorting this out", "intent": "thanks"}
+{"text": "thanks, that solved it", "intent": "thanks"}
+{"text": "appreciate your help", "intent": "thanks"}
+{"text": "thank you, great service", "intent": "thanks"}
+{"text": "thanks buddy", "intent": "thanks"}
+{"text": "what is the score of the match", "intent": "out_of_scope"}
+{"text": "give me a recipe for dosa", "intent": "out_of_scope"}
+{"text": "who is elon musk", "intent": "out_of_scope"}
+{"text": "how far is the moon", "intent": "out_of_scope"}
+{"text": "tell me a fun fact", "intent": "out_of_scope"}
+{"text": "what's the news today", "intent": "out_of_scope"}
+{"text": "solve x + 2 = 5", "intent": "out_of_scope"}
+{"text": "what is your favourite colour", "intent": "out_of_scope"}
+{"text": "recommend a book", "intent": "out_of_scope"}
+{"text": "how do i learn java", "intent": "out_of_scope"}
+{"text": "what's the dollar rate today", "intent": "out_of_scope"}
+{"text": "write an essay on pollution", "intent": "out_of_scope"}
+{"text": "which phone should i buy from apple", "intent": "out_of_scope"}
+{"text": "is it hot outside", "intent": "out_of_scope"}
+{"text": "teach me guitar", "intent": "out_of_scope"}
